@@ -1,0 +1,14 @@
+[
+    {
+        "_id": "_design/fetch",
+        "language": "javascript",
+        "views": {
+            "by_key": {
+                "map": "function(doc) { emit([doc.cacheKey, doc.ts], doc.value); }"
+            },
+            "by_ts": {
+                "map": "function(doc) { emit(doc.ts, doc._rev); }"
+            }
+        }
+    }
+]

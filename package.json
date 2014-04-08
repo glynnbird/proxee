@@ -1,0 +1,28 @@
+{
+  "name": "proxee",
+  "version": "0.0.1",
+  "description": "Node.js library for a CouchDB powered API proxy",
+  "main": "proxee.js",
+  "repository": "https://github.com/glynnbird/proxee",
+  "keywords": [
+    "CouchDB",
+    "api",
+    "proxy",
+    "couch"
+  ],
+  "author": "Glynn Bird",
+  "license": "BSD",
+  "dependencies": {
+    "underscore": "1.5.2",
+    "nano": "4.3.0",
+    "async": "0.2.9",
+    "underscore": "1.5.2",
+    "moment": "2.5.0",
+    "http-proxy": "1.0.3"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*",
+    "memcached": "*"
+  }
+}
