@@ -1,6 +1,8 @@
 var http = require('http'),
+    url = require('url'),
     httpProxy = require('http-proxy'),
-    apicalls = require('./lib/apicalls.js');
+    apicalls = require('./lib/apicalls.js'),
+    customers = require('./lib/customers.js');
     
 // the proxy
 var proxy = httpProxy.createProxyServer({});
@@ -10,7 +12,15 @@ var server = http.createServer(function(req, res) {
   console.log(req.method.toLowerCase(), req.url);
   
   // check to see if the method/url combo is balid
-  var call = apicalls.get('123', req.method, req.url, function(err, data) {
+  customers.get('123', function(err,data) {
+    console.log(err,data);
+  });
+  
+  var parsed_url =  url.parse(req.url);
+  var path = parsed_url.pathname
+  
+
+  var call = apicalls.get('123', req.method, path, function(err, data) {
     if (err) {
       // if the api call does not exist, return 404
       res.writeHead(404, { 'Content-Type': 'text/plain' });
@@ -18,7 +28,9 @@ var server = http.createServer(function(req, res) {
       res.end();
     } else {
       // if the api call does exist, proxy this request to the real url
-      proxy.web(req, res, { target: data.remote_path })
+      console.log("proxies to", data.remote_path);
+      
+      proxy.web(req, res, { target: data.remote_path });
     }
   });
   
