@@ -18,11 +18,11 @@
     "async": "0.2.9",
     "underscore": "1.5.2",
     "moment": "2.5.0",
-    "request": ""
+    "request": "2.34.0",
+    "nano": "5.7.1"
   },
   "devDependencies": {
     "mocha": "*",
-    "should": "*",
-    "memcached": "*"
+    "should": "*"
   }
 }
