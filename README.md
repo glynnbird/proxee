@@ -8,10 +8,16 @@ Proxee is a proxy server that acts as a middle man between the outside world and
 
 ## Use-cases
 
-* provide authentication for an unprotected API
-* provide version API calls for legacy back-end systems e.g. /v1 --> system A, /v2 ---> system B
-* add logging layer to unmetered API
-* replace expensive bought-in service with in-house proxy
+* provide authentication/logging for an unprotected or unmetered API
+![Proxee](https://github.com/glynnbird/proxee/raw/master/public/images/proxee1.png "Proxee")
+
+* provide versioned API calls for legacy back-end systems e.g. /v1 --> system A, /v2 ---> system B
+![Proxee](https://github.com/glynnbird/proxee/raw/master/public/images/proxee2.png "Proxee")
+
+* run proxee behind a load balancer for added resilience
+![Proxee](https://github.com/glynnbird/proxee/raw/master/public/images/proxee3.png "Proxee")
+
+* replace expensive bought-in API management service with in-house proxy
 
 ## Architecture
 
