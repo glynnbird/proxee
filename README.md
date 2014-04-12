@@ -64,3 +64,55 @@ The above record pertains to customer "my_customer_1" expects a GET request on t
 }
 ```
 
+## Proxee Manage
+
+A second app is availble to run which provides a simpe API for creating customers, adding/removing keys and adding/removing api calls.
+
+### Running proxee_manager
+
+```
+  node proxee_manager.js 
+```
+
+which listens on port 3000 by default
+
+### Creating customers
+
+Using curl, call PUT /customer passing in
+
+* customer_id
+* name
+* api_key
+
+e.g
+
+```
+curl -X PUT -d'customer_id=frank&name=Franks+factory+flooring&api_key=1234567890' 'http://127.0.0.1:3000/customer'
+
+### Adding another api_key to a customer
+
+Using curl, call POST /customer/api_key passing in
+
+* customer_id
+* api_key
+
+e.g.
+
+```
+ curl -X POST -d'customer_id=frank&api_key=0987654321' 'http://127.0.0.1:3000/customer/api_key'
+```
+
+### Removing an api_key from a customer 
+
+Using curl, call DELETE /customer/api_key passing in
+
+* customer_id
+* api_key
+
+e.g.
+
+```
+curl -X DELETE -d'customer_id=frank&api_key=0987654321' 'http://127.0.0.1:3000/customer/api_key'
+```
+
+

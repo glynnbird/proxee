@@ -19,7 +19,9 @@
     "underscore": "1.5.2",
     "moment": "2.5.0",
     "request": "2.34.0",
-    "nano": "5.7.1"
+    "nano": "5.7.1",
+    "express": "4.0.0",
+    "body-parser": ""
   },
   "devDependencies": {
     "mocha": "*",

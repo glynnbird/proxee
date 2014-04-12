@@ -58,11 +58,7 @@ var server = http.createServer(function(req, res) {
       }
     });
 
-
   });
-  
-  
-
   
 }).listen(5001);    
 
@@ -74,5 +70,7 @@ var gracefulExit = function () {
 } 
 
 // detect script being killed
-process.on('SIGINT', gracefulExit).on('SIGTERM', gracefulExit) 
+process
+ .on('SIGINT', gracefulExit)
+ .on('SIGTERM', gracefulExit) 
  
