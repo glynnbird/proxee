@@ -25,7 +25,7 @@ var server = http.createServer(function(req, res) {
   // check to see if the method/url combo is balid
   customers.getByAPIKey(api_key, function(err, customer) {
     
-    if (err) {
+    if (err ||  customer.active == false) {
       res.writeHead(403, { 'Content-Type': 'text/plain' });
       res.write("Your api_key is not valid");
       return res.end();

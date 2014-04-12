@@ -32,9 +32,9 @@ If the CouchDB installation is hosted externally (e.g. on Cloudant), then severa
 ## Daemons
 
 * proxee.js - the proxy itself
-* proxee_manage.js - a simple API service allowing customers and API calls to be added/removed from the database
+* proxee_manage.js - a simple API service allowing customers and API calls to be added/removed from the database. This doesn't need to be running for the proxy to work. It is only needed to set up the customers and api calls.
 
-Both daemons can by customised by defining environment variables 
+Both daemons can be customised by defining environment variables 
 
 * COUCHDB_URL - The url where CouchDB is hosted - Defaults to "http://localhost:5984"
 * PROXEE_PORT - The port that proxee.js will listen on - Defaults to 5001
@@ -132,6 +132,17 @@ Using curl, call DELETE /customer/apicall pass in
 ```
 curl -X DELETE -d'customer_id=frank&method=get&path=/v1/fetch/more/data' 'http://127.0.0.1:3000/customer/apicall'
 ```
+
+## Getting started
+
+* download proxee - git clone https://github.com/glynnbird/proxee/
+* in the proxee directory, install dependencies - npm install
+* either install CouchDB locally, or set COUCHDB_URL environment variable to point to valid CouchDB server
+* run proxee.js 
+* run proxee_manager.js
+* add a customer using proxee_manager's API
+* add an API call using proxee_manager's API
+* 
 
 ## Data Model
 
