@@ -4,7 +4,8 @@ var http = require('http'),
     request = require('request'),
     _ = require('underscore'),
     apicalls = require('./lib/apicalls.js'),
-    customers = require('./lib/customers.js');
+    customers = require('./lib/customers.js'),
+    usagelogs = require('./lib/usagelogs.js');
     
 // our proxy server
 var server = http.createServer(function(req, res) {
@@ -42,16 +43,18 @@ var server = http.createServer(function(req, res) {
 
         // calculate the remote request details
         var options = {
-          url: "http://"+data.remote_host+":" + data.remote_port + data.remote_path,
+          url: data.remote_url,
           method: req.method
         };
         if (req.method == 'GET') {
-
           options.url += parsed_url.search;
         }
       
         // proxy the request, effectively connecting the incoming stream with the connection to remote path
         req.pipe(request(options)).pipe(res);
+        usagelogs.log(req.method, data.path, api_key, customer._id, function(err, data) {
+          
+        });
       }
     });
 
@@ -62,4 +65,14 @@ var server = http.createServer(function(req, res) {
 
   
 }).listen(5001);    
-    
+
+// ensure buffers are flushed on exit
+var gracefulExit = function () { 
+  usagelogs.flushBuffer(true, function(err, data) {
+      process.exit();
+  });
+} 
+
+// detect script being killed
+process.on('SIGINT', gracefulExit).on('SIGTERM', gracefulExit) 
+ 
