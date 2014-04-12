@@ -37,7 +37,7 @@ var server = http.createServer(function(req, res) {
       if (err) {
         // if the api call does not exist, return 404
         res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.write(err);
+        res.write("apicall is invalid");
         return res.end();
       } else {
 

@@ -6,6 +6,28 @@ Proxee is a proxy server that acts as a middle man between the outside world and
 * method control - a list of allowed methods and their proxy destination
 * logging - access is logged
 
+## Use-cases
+
+* provide authentication for an unprotected API
+* provide version API calls for legacy back-end systems e.g. /v1 --> system A, /v2 ---> system B
+* add logging layer to unmetered API
+* replace expensive bought-in service with in-house proxy
+
+## Architecture
+
+Proxee is a simple Node.js daemon which listens on a custom port. It's configuration is stored in a CouchDB database which contains a database of customers and the api calls each customer is allowed to access. Incoming requests are compared with the list of calls that are allowed: valid API calls are proxied to the calls 'remote_url', invalid API calls are rejected. 
+
+Database interactions are cached for speed, but as the Proxee daemon listens for changes in the database, it automatically expires cache keys if the data changes on the server.
+
+All proxied API calls are logged in a 'usagelogs' database.
+
+If the CouchDB installation is hosted externally (e.g. on Cloudant), then several Proxee servers can be installed behind a load-balancer to add resilience while sharing the same configuration.
+
+### Daemons
+
+* proxee.js - the proxy itself
+* proxee_manage.js - a simple API service allowing customers and API calls to be added/removed from the database
+
 ## Data Model
 
 Proxee stores its data in CouchDB in three databases
