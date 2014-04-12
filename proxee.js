@@ -19,7 +19,6 @@ var server = http.createServer(function(req, res) {
     res.write("Must supply ?api_key=<your api key>");
     return res.end();
   }
-  console.log(api_key);
   
   // check to see if the method/url combo is balid
   customers.get(api_key, function(err, customer) {
