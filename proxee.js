@@ -5,7 +5,8 @@ var http = require('http'),
     _ = require('underscore'),
     apicalls = require('./lib/apicalls.js'),
     customers = require('./lib/customers.js'),
-    usagelogs = require('./lib/usagelogs.js');
+    usagelogs = require('./lib/usagelogs.js'),
+    port = (process.env.PROXEE_PORT)?process.env.PROXEE_PORT:5001;
     
 // our proxy server
 var server = http.createServer(function(req, res) {
@@ -60,7 +61,8 @@ var server = http.createServer(function(req, res) {
 
   });
   
-}).listen(5001);    
+}).listen(port);
+console.log("Proxee listening on port", port);    
 
 // ensure buffers are flushed on exit
 var gracefulExit = function () { 

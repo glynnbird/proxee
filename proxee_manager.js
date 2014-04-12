@@ -3,7 +3,8 @@ var express = require('express'),
   bodyParser = require('body-parser'),
   customers = require('./lib/customers.js'),
   apicalls = require('./lib/apicalls.js'),
-  app = express();
+  app = express(),
+  port = (process.env.PROXEE_MANAGER_PORT)?process.env.PROXEE_MANAGER_PORT:5002;
 
 // force express to parse posted and putted parameters
 app.use(bodyParser());
@@ -120,4 +121,5 @@ app.delete('/customer/apicall', function(req, res) {
   })
 });
 
-app.listen(3000);
+app.listen(port);
+console.log("Proxee Manager listening on port", port)

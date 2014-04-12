@@ -9,13 +9,13 @@ Proxee is a proxy server that acts as a middle man between the outside world and
 ## Use-cases
 
 * provide authentication/logging for an unprotected or unmetered API
-![Proxee](https://github.com/glynnbird/proxee/raw/master/public/images/proxee1.png "Proxee")
+![Proxee](https://github.com/glynnbird/proxee/raw/master/images/proxee1.png "Proxee")
 
 * provide versioned API calls for legacy back-end systems e.g. /v1 --> system A, /v2 ---> system B
-![Proxee](https://github.com/glynnbird/proxee/raw/master/public/images/proxee2.png "Proxee")
+![Proxee](https://github.com/glynnbird/proxee/raw/master/images/proxee2.png "Proxee")
 
 * run proxee behind a load balancer for added resilience
-![Proxee](https://github.com/glynnbird/proxee/raw/master/public/images/proxee3.png "Proxee")
+![Proxee](https://github.com/glynnbird/proxee/raw/master/images/proxee3.png "Proxee")
 
 * replace expensive bought-in API management service with in-house proxy
 
@@ -29,10 +29,109 @@ All proxied API calls are logged in a 'usagelogs' database.
 
 If the CouchDB installation is hosted externally (e.g. on Cloudant), then several Proxee servers can be installed behind a load-balancer to add resilience while sharing the same configuration.
 
-### Daemons
+## Daemons
 
 * proxee.js - the proxy itself
 * proxee_manage.js - a simple API service allowing customers and API calls to be added/removed from the database
+
+Both daemons can by customised by defining environment variables 
+
+* COUCHDB_URL - The url where CouchDB is hosted - Defaults to "http://localhost:5984"
+* PROXEE_PORT - The port that proxee.js will listen on - Defaults to 5001
+* PROXEE_MANAGER_PORT -  The port that proxee_manager_.js will listen on - Defaults to 5002
+
+e.g.
+```
+  export COUCHDB_URL="https://myusername:mypassword@myhost.cloudant.com"
+  export PROXEE_PORT=6001
+  export PROXEE_MANAGER_PORT=6002
+```
+
+### proxee.js
+
+The primary application is called "proxee.js". It can be run as follows:
+
+```
+  node proxee.js
+```
+
+The application will setup any databases and/or views that it needs.
+
+
+### proxee_manager.js
+
+A second app is availble to run which provides a simpe API for creating customers, adding/removing keys and adding/removing api calls.
+
+#### Running proxee_manager
+
+```
+  node proxee_manager.js 
+```
+
+which listens on port 3000 by default
+
+#### Creating customers
+
+Using curl, call PUT /customer passing in
+
+* customer_id
+* name
+* api_key
+
+e.g
+
+```
+curl -X PUT -d'customer_id=frank&name=Franks+factory+flooring&api_key=1234567890' 'http://127.0.0.1:3000/customer'
+
+#### Adding another api_key to a customer
+
+Using curl, call POST /customer/api_key passing in
+
+* customer_id
+* api_key
+
+e.g.
+
+```
+ curl -X POST -d'customer_id=frank&api_key=0987654321' 'http://127.0.0.1:3000/customer/api_key'
+```
+
+#### Removing an api_key from a customer 
+
+Using curl, call DELETE /customer/api_key passing in
+
+* customer_id
+* api_key
+
+e.g.
+
+```
+curl -X DELETE -d'customer_id=frank&api_key=0987654321' 'http://127.0.0.1:3000/customer/api_key'
+```
+
+#### Adding an apicall to a customer
+
+Using curl, call PUT /customer/apicall pass in
+
+* customer_id
+* method
+* path
+* remote_url
+
+```
+curl -X PUT -d'customer_id=frank&method=get&path=/v1/fetch/more/data&remote_url=http://myapi.myserver.com/more' 'http://127.0.0.1:3000/customer/apicall'
+
+#### Removing an apicall from a customer
+
+Using curl, call DELETE /customer/apicall pass in
+
+* customer_id
+* method
+* path
+
+```
+curl -X DELETE -d'customer_id=frank&method=get&path=/v1/fetch/more/data' 'http://127.0.0.1:3000/customer/apicall'
+```
 
 ## Data Model
 
@@ -91,79 +190,3 @@ The above record pertains to customer "my_customer_1" expects a GET request on t
    "ts": 1397285971
 }
 ```
-
-## Proxee Manage
-
-A second app is availble to run which provides a simpe API for creating customers, adding/removing keys and adding/removing api calls.
-
-### Running proxee_manager
-
-```
-  node proxee_manager.js 
-```
-
-which listens on port 3000 by default
-
-### Creating customers
-
-Using curl, call PUT /customer passing in
-
-* customer_id
-* name
-* api_key
-
-e.g
-
-```
-curl -X PUT -d'customer_id=frank&name=Franks+factory+flooring&api_key=1234567890' 'http://127.0.0.1:3000/customer'
-
-### Adding another api_key to a customer
-
-Using curl, call POST /customer/api_key passing in
-
-* customer_id
-* api_key
-
-e.g.
-
-```
- curl -X POST -d'customer_id=frank&api_key=0987654321' 'http://127.0.0.1:3000/customer/api_key'
-```
-
-### Removing an api_key from a customer 
-
-Using curl, call DELETE /customer/api_key passing in
-
-* customer_id
-* api_key
-
-e.g.
-
-```
-curl -X DELETE -d'customer_id=frank&api_key=0987654321' 'http://127.0.0.1:3000/customer/api_key'
-```
-
-### Adding an apicall to a customer
-
-Using curl, call PUT /customer/apicall pass in
-
-* customer_id
-* method
-* path
-* remote_url
-
-```
-curl -X PUT -d'customer_id=frank&method=get&path=/v1/fetch/more/data&remote_url=http://myapi.myserver.com/more' 'http://127.0.0.1:3000/customer/apicall'
-
-### Removing an apicall from a customer
-
-Using curl, call DELETE /customer/apicall pass in
-
-* customer_id
-* method
-* path
-
-```
-curl -X DELETE -d'customer_id=frank&method=get&path=/v1/fetch/more/data' 'http://127.0.0.1:3000/customer/apicall'
-```
-
