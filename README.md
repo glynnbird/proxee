@@ -115,4 +115,27 @@ e.g.
 curl -X DELETE -d'customer_id=frank&api_key=0987654321' 'http://127.0.0.1:3000/customer/api_key'
 ```
 
+### Adding an apicall to a customer
+
+Using curl, call PUT /customer/apicall pass in
+
+* customer_id
+* method
+* path
+* remote_url
+
+```
+curl -X PUT -d'customer_id=frank&method=get&path=/v1/fetch/more/data&remote_url=http://myapi.myserver.com/more' 'http://127.0.0.1:3000/customer/apicall'
+
+### Removing an apicall from a customer
+
+Using curl, call DELETE /customer/apicall pass in
+
+* customer_id
+* method
+* path
+
+```
+curl -X DELETE -d'customer_id=frank&method=get&path=/v1/fetch/more/data' 'http://127.0.0.1:3000/customer/apicall'
+```
 

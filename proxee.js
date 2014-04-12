@@ -22,7 +22,7 @@ var server = http.createServer(function(req, res) {
   }
   
   // check to see if the method/url combo is balid
-  customers.get(api_key, function(err, customer) {
+  customers.getByAPIKey(api_key, function(err, customer) {
     
     if (err) {
       res.writeHead(403, { 'Content-Type': 'text/plain' });

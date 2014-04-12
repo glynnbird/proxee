@@ -2,6 +2,7 @@ var express = require('express'),
   _ = require('underscore'),
   bodyParser = require('body-parser'),
   customers = require('./lib/customers.js'),
+  apicalls = require('./lib/apicalls.js'),
   app = express();
 
 // force express to parse posted and putted parameters
@@ -67,6 +68,56 @@ app.delete('/customer/api_key', function(req, res) {
       ret200(res, "ok", data);
     }
   });
+});
+
+app.put('/customer/apicall', function(req, res) {
+  var p = ["customer_id","method","path","remote_url"];
+  if (!checkParams(p, req.body)) {
+    return ret404(res, "Missing mandatory params", p.toString());
+  }
+  var method = req.body.method.toUpperCase();
+  var methods = ["GET", "PUT", "POST", "GET"];
+  if (methods.indexOf(method) == -1) {
+    return ret404(res, "Invalid method", method);
+  }
+  customers.get(req.body.customer_id, function(err, data) {
+    if (err) {
+      ret404(res, "Failed to add apicall. Customer does not exist", err.description);
+    } else {
+      apicalls.save(req.body.customer_id, req.body.method, req.body.path, req.body.remote_url, function(err, data) {
+        if (err) {
+          ret404(res, "Failed to write api_call", err.description);
+        } else {
+          ret200(res, "ok", data);
+        }
+      });
+    }
+  })
+});
+
+app.delete('/customer/apicall', function(req, res) {
+  var p = ["customer_id","method","path"];
+  if (!checkParams(p, req.body)) {
+    return ret404(res, "Missing mandatory params", p.toString());
+  }
+  var method = req.body.method.toUpperCase();
+  var methods = ["GET", "PUT", "POST", "GET"];
+  if (methods.indexOf(method) == -1) {
+    return ret404(res, "Invalid method", method);
+  }
+  customers.get(req.body.customer_id, function(err, data) {
+    if (err) {
+      ret404(res, "Failed to remove apicall. Customer does not exist", err.description);
+    } else {
+      apicalls.remove(req.body.customer_id, req.body.method, req.body.path, function(err, data) {
+        if (err) {
+          ret404(res, "Failed to remove api_call", err.description);
+        } else {
+          ret200(res, "ok", data);
+        }
+      });
+    }
+  })
 });
 
 app.listen(3000);
