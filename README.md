@@ -140,7 +140,7 @@ Using curl, call DELETE /customer/apicall pass in
 curl -X DELETE -d'customer_id=frank&method=get&path=/v1/fetch/more/data' 'http://127.0.0.1:5002/customer/apicall'
 ```
 
-### Getting usage stats for a customer
+### Getting usage stats for a customer for today
 
 Using curl, call GET /customer/stats/today passing in
 
@@ -149,6 +149,15 @@ Using curl, call GET /customer/stats/today passing in
 ```
 curl 'http://127.0.0.1:5002/customer/stats/today?customer_id=frank'
 ```
+
+### Getting usage stats for a customer for this month, by day
+
+Using curl, call GET /customer/stats/thismonth passing in
+
+* customer_id
+
+```
+curl 'http://127.0.0.1:5002/customer/stats/thismonth?customer_id=frank'
 
 ## Getting started
 

@@ -135,7 +135,22 @@ app.get("/customer/stats/today", function(req,res) {
       ret200(res, "ok", data);
     }
   })
-})
+});
+
+app.get("/customer/stats/thismonth", function(req,res) {
+  var p = ["customer_id"];
+  if (!checkParams(p, req.query)) {
+    return ret404(res, "Missing mandatory params", p.toString());
+  }
+  
+  usagelogs.statsThisMonth(req.query.customer_id, function(err, data) {
+    if (err) {
+      ret404(res, "Failed to fetch stats", null);
+    } else {
+      ret200(res, "ok", data);
+    }
+  })
+});
 
 app.listen(port);
 console.log("Proxee Manager listening on port", port)
