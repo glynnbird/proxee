@@ -6,7 +6,8 @@ var http = require('http'),
     apicalls = require('./lib/apicalls.js'),
     customers = require('./lib/customers.js'),
     usagelogs = require('./lib/usagelogs.js'),
-    port = (process.env.PROXEE_PORT)?process.env.PROXEE_PORT:5001;
+    port = (process.env.PROXEE_PORT)?process.env.PROXEE_PORT:5001,
+    customer_id_field = (process.env.PROXEE_CUSTOMER_ID_FIELD)?process.env.PROXEE_CUSTOMER_ID_FIELD:null;
     
 // our proxy server
 var server = http.createServer(function(req, res) {
@@ -49,6 +50,15 @@ var server = http.createServer(function(req, res) {
         };
         if (req.method == 'GET') {
           options.url += parsed_url.search;
+        }
+        if (customer_id_field) {
+          var parsed = url.parse(options.url);
+          if (parsed.search) {
+            options.url += "&"
+          } else {
+            options.url += "?";
+          }
+          options.url += customer_id_field + "=" + escape(customer._id);
         }
       
         // proxy the request, effectively connecting the incoming stream with the connection to remote path

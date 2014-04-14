@@ -39,6 +39,7 @@ Both daemons can be customised by defining environment variables
 * COUCHDB_URL - The url where CouchDB is hosted - Defaults to "http://localhost:5984"
 * PROXEE_PORT - The port that proxee.js will listen on - Defaults to 5001
 * PROXEE_MANAGER_PORT -  The port that proxee_manager_.js will listen on - Defaults to 5002
+* PROXEE_CUSTOMER_ID_FIELD - the field that the customer_id is insert into the remote url - Defaults to null
 
 e.g.
 ```
