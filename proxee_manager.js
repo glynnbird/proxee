@@ -3,6 +3,7 @@ var express = require('express'),
   bodyParser = require('body-parser'),
   customers = require('./lib/customers.js'),
   apicalls = require('./lib/apicalls.js'),
+  usagelogs = require('./lib/usagelogs.js'),
   app = express(),
   port = (process.env.PROXEE_MANAGER_PORT)?process.env.PROXEE_MANAGER_PORT:5002;
 
@@ -120,6 +121,21 @@ app.delete('/customer/apicall', function(req, res) {
     }
   })
 });
+
+app.get("/customer/stats/today", function(req,res) {
+  var p = ["customer_id"];
+  if (!checkParams(p, req.query)) {
+    return ret404(res, "Missing mandatory params", p.toString());
+  }
+  
+  usagelogs.statsToday(req.query.customer_id, function(err, data) {
+    if (err) {
+      ret404(res, "Failed to fetch stats", null);
+    } else {
+      ret200(res, "ok", data);
+    }
+  })
+})
 
 app.listen(port);
 console.log("Proxee Manager listening on port", port)

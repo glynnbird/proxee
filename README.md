@@ -140,6 +140,16 @@ Using curl, call DELETE /customer/apicall pass in
 curl -X DELETE -d'customer_id=frank&method=get&path=/v1/fetch/more/data' 'http://127.0.0.1:5002/customer/apicall'
 ```
 
+### Getting usage stats for a customer
+
+Using curl, call GET /customer/stats/today passing in
+
+* customer_id
+
+```
+curl 'http://127.0.0.1:5002/customer/stats/today?customer_id=frank'
+```
+
 ## Getting started
 
 * download proxee - git clone https://github.com/glynnbird/proxee/
