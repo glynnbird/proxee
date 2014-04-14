@@ -1,16 +1,21 @@
 var http = require('http'),
+    https = require('https'),
     url = require('url'),
+    fs = require('fs'),
     querystring = require('querystring'),
     request = require('request'),
     _ = require('underscore'),
     apicalls = require('./lib/apicalls.js'),
     customers = require('./lib/customers.js'),
     usagelogs = require('./lib/usagelogs.js'),
-    port = (process.env.PROXEE_PORT)?process.env.PROXEE_PORT:5001,
-    customer_id_field = (process.env.PROXEE_CUSTOMER_ID_FIELD)?process.env.PROXEE_CUSTOMER_ID_FIELD:null;
+    http_port = (process.env.PROXEE_HTTP_PORT)?process.env.PROXEE_HTTP_PORT:5001,
+    https_port = (process.env.PROXEE_HTTPS_PORT)?process.env.PROXEE_HTTPS_PORT:5003,
+    customer_id_field = (process.env.PROXEE_CUSTOMER_ID_FIELD)?process.env.PROXEE_CUSTOMER_ID_FIELD:null,
+    https_key_path = (process.env.PROXEE_HTTPS_KEY_PATH)?process.env.PROXEE_HTTPS_KEY_PATH:null,
+    https_cert_path = (process.env.PROXEE_HTTPS_CERT_PATH)?process.env.PROXEE_HTTPS_CERT_PATH:null;
     
-// our proxy server
-var server = http.createServer(function(req, res) {
+    
+var handle = function (req, res) {
   console.log(req.method, req.url);
   
   // find the api_key
@@ -70,9 +75,28 @@ var server = http.createServer(function(req, res) {
     });
 
   });
-  
-}).listen(port);
-console.log("Proxee listening on port", port);    
+}    
+    
+    // it an https server is required
+if (https_key_path && https_cert_path) {
+  var options = {
+    key: fs.readFileSync(https_key_path),
+    cert: fs.readFileSync(https_cert_path)
+  };
+
+  https.createServer(options, function (req, res) {
+    handle(req, res);
+
+  }).listen(https_port);
+  console.log("Proxee listening for HTTPS on port", https_port);      
+}    
+    
+    
+// our proxy server
+var server = http.createServer(function(req, res) {
+  handle(req, res);
+}).listen(http_port);
+console.log("Proxee listening for HTTP on port", http_port);    
 
 // ensure buffers are flushed on exit
 var gracefulExit = function () { 

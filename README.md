@@ -5,6 +5,7 @@ Proxee is a proxy server that acts as a middle man between the outside world and
 * authentication and key management - an api_key parameter must be supplied
 * method control - a list of allowed methods and their proxy destination
 * logging - access is logged
+* https support - incoming and outgoing traffic can be optional over https
 
 ## Use-cases
 
@@ -37,8 +38,11 @@ If the CouchDB installation is hosted externally (e.g. on Cloudant), then severa
 Both daemons can be customised by defining environment variables 
 
 * COUCHDB_URL - The url where CouchDB is hosted - Defaults to "http://localhost:5984"
-* PROXEE_PORT - The port that proxee.js will listen on - Defaults to 5001
+* PROXEE_HTTP_PORT - The port that proxee.js will listen on for HTTP traffic - Defaults to 5001
 * PROXEE_MANAGER_PORT -  The port that proxee_manager_.js will listen on - Defaults to 5002
+* PROXEE_HTTPS_PORT - The port that proxee.js will listen on for HTTPS traffic - Defaults to null
+* PROXEE_HTTPS_KEY_PATH - The path to the https private key file in PEM format - Defaults to null
+* PROXEE_HTTPS_CERT_PATH - The path to the https certificate file in PEM format - Defaults to null
 * PROXEE_CUSTOMER_ID_FIELD - the field that the customer_id is insert into the remote url - Defaults to null
 
 e.g.
@@ -204,3 +208,32 @@ The above record pertains to customer "my_customer_1" expects a GET request on t
    "ts": 1397285971
 }
 ```
+
+## FAQ
+
+### How do ensure my API traffic is encypted?
+
+* buy a secure certificate. Ensure you have the private key and certificate as PEM files
+* configure the following environment variables
+* * PROXEE_HTTPS_PORT - The port that proxee.js will listen on for HTTPS traffic - Defaults to null
+* * PROXEE_HTTPS_KEY_PATH - The path to the https private key file in PEM format - Defaults to null
+* * PROXEE_HTTPS_CERT_PATH - The path to the https certificate file in PEM format - Defaults to null
+* run proxee.js
+
+e.g.
+
+```
+  export PROXEE_HTTPS_KEY_PATH="/path/to/key.pem"
+  export PROXEE_HTTPS_CERT_PATH="/path/to/cert.pem"
+  node proxee.js
+```
+
+### I want HTTP on port 80 and HTTPs on port 443. How do I do this?
+
+Proxee is designed to be run as a user-space daemon and as such, cannot listen on privileged ports. As root, you can forward the privileged ports 80 & 443 using Iptables rules e.g.
+
+```
+  iptables -A PREROUTING -p tcp -m tcp --dport 80 -j REDIRECT --to-ports 5001
+  iptables -A PREROUTING -p tcp -m tcp --dport 443 -j REDIRECT --to-ports 5003
+  /etc/init.d/iptables save
+```   
