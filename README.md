@@ -68,7 +68,7 @@ A second app is availble to run which provides a simpe API for creating customer
   node proxee_manager.js 
 ```
 
-which listens on port 3000 by default
+which listens on port 5002 by default
 
 #### Creating customers
 
@@ -81,7 +81,8 @@ Using curl, call PUT /customer passing in
 e.g
 
 ```
-curl -X PUT -d'customer_id=frank&name=Franks+factory+flooring&api_key=1234567890' 'http://127.0.0.1:3000/customer'
+curl -X PUT -d'customer_id=frank&name=Franks+factory+flooring&api_key=1234567890' 'http://127.0.0.1:5002/customer'
+```
 
 #### Adding another api_key to a customer
 
@@ -93,7 +94,7 @@ Using curl, call POST /customer/api_key passing in
 e.g.
 
 ```
- curl -X POST -d'customer_id=frank&api_key=0987654321' 'http://127.0.0.1:3000/customer/api_key'
+ curl -X POST -d'customer_id=frank&api_key=0987654321' 'http://127.0.0.1:5002/customer/api_key'
 ```
 
 #### Removing an api_key from a customer 
@@ -106,7 +107,7 @@ Using curl, call DELETE /customer/api_key passing in
 e.g.
 
 ```
-curl -X DELETE -d'customer_id=frank&api_key=0987654321' 'http://127.0.0.1:3000/customer/api_key'
+curl -X DELETE -d'customer_id=frank&api_key=0987654321' 'http://127.0.0.1:5002/customer/api_key'
 ```
 
 #### Adding an apicall to a customer
@@ -119,7 +120,8 @@ Using curl, call PUT /customer/apicall pass in
 * remote_url
 
 ```
-curl -X PUT -d'customer_id=frank&method=get&path=/v1/fetch/more/data&remote_url=http://myapi.myserver.com/more' 'http://127.0.0.1:3000/customer/apicall'
+curl -X PUT -d'customer_id=frank&method=get&path=/v1/fetch/more/data&remote_url=http://myapi.myserver.com/more' 'http://127.0.0.1:5002/customer/apicall'
+```
 
 #### Removing an apicall from a customer
 
@@ -130,7 +132,7 @@ Using curl, call DELETE /customer/apicall pass in
 * path
 
 ```
-curl -X DELETE -d'customer_id=frank&method=get&path=/v1/fetch/more/data' 'http://127.0.0.1:3000/customer/apicall'
+curl -X DELETE -d'customer_id=frank&method=get&path=/v1/fetch/more/data' 'http://127.0.0.1:5002/customer/apicall'
 ```
 
 ## Getting started
