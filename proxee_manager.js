@@ -78,7 +78,7 @@ app.put('/customer/apicall', function(req, res) {
     return ret404(res, "Missing mandatory params", p.toString());
   }
   var method = req.body.method.toUpperCase();
-  var methods = ["GET", "PUT", "POST", "GET"];
+  var methods = ["GET", "PUT", "POST", "DELETE"];
   if (methods.indexOf(method) == -1) {
     return ret404(res, "Invalid method", method);
   }
