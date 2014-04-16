@@ -10,6 +10,7 @@ var express = require('express'),
 // force express to parse posted and putted parameters
 app.use(bodyParser());
 
+// validate if 'params' are present in the incoming query string
 var checkParams = function(params, qs) {
   var ok = true;
   for( var i in params) {
@@ -21,14 +22,17 @@ var checkParams = function(params, qs) {
   return ok;
 }
 
+// return a 404 JSON response
 var ret404 = function(res, msg, data) {
   res.send(404, { success: false, message: msg, data: data})
 }
 
+// return a 200 JSON response
 var ret200 = function(res, msg, data) {
   res.send(200, { success: true, message: msg, data: data})
 }
 
+// handle PUT /customer
 app.put('/customer', function(req, res) {
   var p = ["customer_id","name","api_key"];
   if (!checkParams(p, req.body)) {
@@ -41,9 +45,9 @@ app.put('/customer', function(req, res) {
       ret200(res, "ok", data);
     }
   });
-
 });
 
+// handle POST /customer/api_key
 app.post('/customer/api_key', function(req, res) {
   var p = ["customer_id", "api_key"];
   if (!checkParams(p, req.body)) {
@@ -58,6 +62,7 @@ app.post('/customer/api_key', function(req, res) {
   });
 });
 
+// handle DELETE /customer/api_key
 app.delete('/customer/api_key', function(req, res) {
   var p = ["customer_id", "api_key"];
   if (!checkParams(p, req.body)) {
@@ -72,6 +77,7 @@ app.delete('/customer/api_key', function(req, res) {
   });
 });
 
+// handle PUT /customer/apicall
 app.put('/customer/apicall', function(req, res) {
   var p = ["customer_id","method","path","remote_url"];
   if (!checkParams(p, req.body)) {
@@ -97,6 +103,7 @@ app.put('/customer/apicall', function(req, res) {
   })
 });
 
+// handle DELETE /customer/apicall
 app.delete('/customer/apicall', function(req, res) {
   var p = ["customer_id","method","path"];
   if (!checkParams(p, req.body)) {
@@ -122,6 +129,7 @@ app.delete('/customer/apicall', function(req, res) {
   })
 });
 
+// handle GET /customer/stats/today
 app.get("/customer/stats/today", function(req,res) {
   var p = ["customer_id"];
   if (!checkParams(p, req.query)) {
@@ -137,6 +145,7 @@ app.get("/customer/stats/today", function(req,res) {
   })
 });
 
+// handle GET /customer/stats/thismonth
 app.get("/customer/stats/thismonth", function(req,res) {
   var p = ["customer_id"];
   if (!checkParams(p, req.query)) {
@@ -152,5 +161,6 @@ app.get("/customer/stats/thismonth", function(req,res) {
   })
 });
 
+// listen
 app.listen(port);
 console.log("Proxee Manager listening on port", port)

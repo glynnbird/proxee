@@ -14,7 +14,9 @@ var http = require('http'),
     https_key_path = (process.env.PROXEE_HTTPS_KEY_PATH)?process.env.PROXEE_HTTPS_KEY_PATH:null,
     https_cert_path = (process.env.PROXEE_HTTPS_CERT_PATH)?process.env.PROXEE_HTTPS_CERT_PATH:null;
     
-    
+// handle a request
+// - req - the request
+// - res - the response    
 var handle = function (req, res) {
   console.log(req.method, req.url);
   
@@ -53,9 +55,13 @@ var handle = function (req, res) {
           url: data.remote_url,
           method: req.method
         };
+        
+        // add GET parameters into the url
         if (req.method == 'GET') {
           options.url += parsed_url.search;
         }
+        
+        // if the customer_id is to be forced into the url
         if (customer_id_field) {
           var parsed = url.parse(options.url);
           if (parsed.search) {
@@ -68,6 +74,8 @@ var handle = function (req, res) {
       
         // proxy the request, effectively connecting the incoming stream with the connection to remote path
         req.pipe(request(options)).pipe(res);
+        
+        // record usage logs
         usagelogs.log(req.method, data.path, api_key, customer._id, function(err, data) {
           
         });
@@ -77,22 +85,24 @@ var handle = function (req, res) {
   });
 }    
     
-    // it an https server is required
+// it an https server is required
 if (https_key_path && https_cert_path) {
+
+  // load the key and certificate PEM files
   var options = {
     key: fs.readFileSync(https_key_path),
     cert: fs.readFileSync(https_cert_path)
   };
 
+  // start up an https server
   https.createServer(options, function (req, res) {
     handle(req, res);
-
   }).listen(https_port);
   console.log("Proxee listening for HTTPS on port", https_port);      
 }    
     
     
-// our proxy server
+// start up an http server
 var server = http.createServer(function(req, res) {
   handle(req, res);
 }).listen(http_port);
