@@ -3,13 +3,17 @@
 Proxee is a proxy server that acts as a middle man between the outside world and your API service or services. It provides
 
 * authentication and key management - an api_key parameter must be supplied
-* method control - a list of allowed methods and their proxy destination
-* logging - access is logged
+* method control - a list of each customer's allowed methods and their proxy destination
+* logging - access is logged and counts are aggregated in reports
 * https support - incoming and outgoing traffic can be optional over https
+* management api - for adding and removing customers and allowed api calls
+* built with Node.js
+* stores data in CouchDB (locally or hosted)
+* free to use, simple to setup and open source
 
 ## Use-cases
 
-* provide authentication/logging for an unprotected or unmetered API
+* provide a public facing API authentication/logging powered by an unprotected or unmetered API
 ![Proxee](https://github.com/glynnbird/proxee/raw/master/images/proxee1.png "Proxee")
 
 * provide versioned API calls for legacy back-end systems e.g. /v1 --> system A, /v2 ---> system B
@@ -18,22 +22,22 @@ Proxee is a proxy server that acts as a middle man between the outside world and
 * run proxee behind a load balancer for added resilience
 ![Proxee](https://github.com/glynnbird/proxee/raw/master/images/proxee3.png "Proxee")
 
-* replace expensive bought-in API management service with in-house proxy
+* replace expensive a bought-in API management service with an in-house proxy
 
 ## Architecture
 
-Proxee is a simple Node.js daemon which listens on a custom port. It's configuration is stored in a CouchDB database which contains a database of customers and the api calls each customer is allowed to access. Incoming requests are compared with the list of calls that are allowed: valid API calls are proxied to the calls 'remote_url', invalid API calls are rejected. 
+Proxee is a simple Node.js daemon which listens on a custom port. Its configuration is stored in CouchDB which contains a database of customers and the api calls each customer is allowed to access. Incoming requests are compared with the list of calls that are allowed: valid API calls are proxied to the call's 'remote_url'; invalid API calls and requests with invalid api_key parameters are rejected.
 
-Database interactions are cached for speed, but as the Proxee daemon listens for changes in the database, it automatically expires cache keys if the data changes on the server.
+Database interactions are cached for speed, but as the Proxee daemon listens for changes in the CouchDB database, it automatically expires cache keys if the data changes on the server.
 
-All proxied API calls are logged in a 'usagelogs' database.
+All proxied API calls are logged in a 'usagelogs' database, where CouchDB views provide aggregate counts by customer/date/method/path.
 
 If the CouchDB installation is hosted externally (e.g. on Cloudant), then several Proxee servers can be installed behind a load-balancer to add resilience while sharing the same configuration.
 
 ## Daemons
 
 * proxee.js - the proxy itself
-* proxee_manage.js - a simple API service allowing customers and API calls to be added/removed from the database. This doesn't need to be running for the proxy to work. It is only needed to set up the customers and api calls.
+* proxee_manager.js - a simple API service allowing customers and API calls to be added/removed from the database. This doesn't need to be running for the proxy to work. It is only needed to set up the customers and api calls.
 
 Both daemons can be customised by defining environment variables 
 
@@ -54,18 +58,25 @@ e.g.
 
 ### proxee.js
 
-The primary application is called "proxee.js". It can be run as follows:
+The primary application is called "proxee.js". The first time proxee is downloaded, then 'npm' can install the dependcies:
+
+```
+  cd proxee
+  npm install
+```
+
+Proxee can be then run as follows:
 
 ```
   node proxee.js
 ```
 
-The application will setup any databases and/or views that it needs.
+The application will setup any databases and/or views that it needs. Tools like [Forever](https://github.com/nodejitsu/forever) can be used to run Proxee in the background and restart it after crashes. 
 
 
 ### proxee_manager.js
 
-A second app is availble to run which provides a simpe API for creating customers, adding/removing keys and adding/removing api calls.
+A second app is availble to run which provides a simpe API for creating customers, adding/removing keys. adding/removing api calls and reporting.
 
 #### Running proxee_manager
 
@@ -73,7 +84,7 @@ A second app is availble to run which provides a simpe API for creating customer
   node proxee_manager.js 
 ```
 
-which listens on port 5002 by default
+which listens on port 5002 by default, exposing a simple RESTful API.
 
 #### Creating customers
 
@@ -91,7 +102,7 @@ curl -X PUT -d'customer_id=frank&name=Franks+factory+flooring&api_key=1234567890
 
 #### Adding another api_key to a customer
 
-Using curl, call POST /customer/api_key passing in
+When first created, a customer will have one api_key. Others can be added to a customer by calling POST /customer/api_key passing in
 
 * customer_id
 * api_key
@@ -119,10 +130,10 @@ curl -X DELETE -d'customer_id=frank&api_key=0987654321' 'http://127.0.0.1:5002/c
 
 Using curl, call PUT /customer/apicall pass in
 
-* customer_id
-* method
-* path
-* remote_url
+* customer_id - the id of the customer to add the call to
+* method - the HTTP method e.g. GET, POST, DELETE, or PUT.
+* path - the relative path that Proxee will look out for e.g. /v1/my/api/call
+* remote_url - the full url that Proxee will proxy the incoming request to
 
 ```
 curl -X PUT -d'customer_id=frank&method=get&path=/v1/fetch/more/data&remote_url=http://myapi.myserver.com/more' 'http://127.0.0.1:5002/customer/apicall'
@@ -168,7 +179,6 @@ curl 'http://127.0.0.1:5002/customer/stats/thismonth?customer_id=frank'
 * run proxee_manager.js
 * add a customer using proxee_manager's API
 * add an API call using proxee_manager's API
-* 
 
 ## Data Model
 
@@ -196,7 +206,7 @@ In the above example, this customer (id = my_customer_1) has two api_keys.
 
 ### apicalls
 
-"apicalls" is a list of all the valid calls that permitted to be  made. A record looks like this:
+"apicalls" is a list of all the valid calls that permitted to be proxied. A record looks like this:
 
 ```
 {
@@ -249,10 +259,18 @@ e.g.
 
 ### I want HTTP on port 80 and HTTPs on port 443. How do I do this?
 
-Proxee is designed to be run as a user-space daemon and as such, cannot listen on privileged ports. As root, you can forward the privileged ports 80 & 443 using Iptables rules e.g.
+Proxee is designed to be run as a user-space daemon and as such, cannot listen on privileged ports. As root, you can forward the privileged ports 80 & 443 using Iptables rules e.g. as root:
 
 ```
   iptables -A PREROUTING -p tcp -m tcp --dport 80 -j REDIRECT --to-ports 5001
   iptables -A PREROUTING -p tcp -m tcp --dport 443 -j REDIRECT --to-ports 5003
   /etc/init.d/iptables save
 ```   
+
+## Tests
+
+The test suite can be run with
+
+```
+  mocha
+```
