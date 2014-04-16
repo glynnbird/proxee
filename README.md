@@ -169,6 +169,7 @@ Using curl, call GET /customer/stats/thismonth passing in
 
 ```
 curl 'http://127.0.0.1:5002/customer/stats/thismonth?customer_id=frank'
+```
 
 ## Getting started
 
